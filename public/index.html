@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+    <head>
+        <meta charset="UTF-8">
+        <title>Router Javascript Vanilla</title>
+        <style>
+            #view {
+
+            }
+        </style>
+        <script>
+            //Cria o objeto
+            var Router = function(name, routes) {
+                return {
+                    name: name,
+                    routes: routes
+                }
+            };
+
+            //Inicializa o objeto de rotas
+            var myFirstRouter = new Router('myFirstRouter', [
+                {
+                path : '/',
+                name: 'Root'
+                },
+                {
+                path : '/about',
+                name: 'About'
+                },
+                {
+                path : '/contact',
+                name: 'Contact'
+                }
+            ]);
+
+            updateView = function () {
+                
+
+                var view = document.getElementById("view");
+                var currentPath = window.location.pathname;
+                console.log(currentPath);
+
+                if (currentPath === '/') {
+                    view.innerText = 'Você está no path principal';
+                } else {
+                    
+                    var route = myFirstRouter.routes.filter(function(r){
+                        return r.path === currentPath;
+                    })[0];
+
+                    if (route) {
+                        view.innerText = `Você está no path ${currentPath}`;
+                    } else {
+                        view.innerText = 'No page';
+                    }
+                }
+
+            }
+
+            window.onpopstate = function () {
+                updateView ();
+            }
+
+            window.onload = function() {
+                
+                var view = document.getElementById("view");
+
+                //Pega todos os elementos com atributo de rota
+                var activeRoutes = Array.from(document.querySelectorAll('[route]'))
+                
+                //Cria função que navega nas rotas
+                function navigate(event) {
+                    
+                    var route = event.target.attributes[0].value;
+                    var routeInfo = myFirstRouter.routes.filter(function(r) {
+                        return r.path === route;
+                    })[0];
+
+                    if(!routeInfo) {
+                        window.history.pushState({},'','erro');
+                    } else {
+                        window.history.pushState({},'',routeInfo.path);
+                        updateView ();
+                    }
+                }
+
+                activeRoutes.forEach(function(route) {
+                    route.addEventListener('click', navigate, false);
+                });
+
+                updateView ();
+
+            }
+        </script>
+    </head>
+
+    <body>
+
+       <h3>Simples Router</h3>
+       <div id="view"></div>
+
+       <button route="/">Home</button>
+       <button route="/about"> About</button>
+       <button route="/contact">Contact</button>
+
+    </body>
+
+</html>
